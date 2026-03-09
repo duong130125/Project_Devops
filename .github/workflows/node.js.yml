@@ -27,7 +27,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             # Di chuyển vào thư mục project
-            cd ~/devops-todolist
+            cd ~/Project_Devops
 
             # Pull code mới nhất
             git pull origin ${{ github.ref_name }}
