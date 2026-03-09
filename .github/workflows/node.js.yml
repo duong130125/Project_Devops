@@ -4,7 +4,7 @@ name: CI/CD Deploy TodoApp
 on:
   push:
     branches:
-      - main
+      - master
       - production
 
 jobs:
