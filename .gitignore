@@ -1,0 +1,6 @@
+# DevOps TodoList - Ignore rules
+node_modules/
+dist/
+target/
+*.jar
+.env

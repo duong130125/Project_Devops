@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # ====== PostgreSQL Database ======
+  db:
+    image: postgres:15-alpine
+    container_name: todoapp-db
+    restart: always
+    environment:
+      POSTGRES_DB: rikkei_prod
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    # KHÔNG expose port 5432 ra ngoài -> chỉ cho phép kết nối nội bộ
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rikkei_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ====== Spring Boot Backend ======
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todoapp-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/rikkei_prod
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres123
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # ====== React Frontend ======
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: todoapp-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# ====== Volumes ======
+volumes:
+  postgres_data:
+    driver: local
+
+# ====== Networks ======
+networks:
+  app-network:
+    driver: bridge
